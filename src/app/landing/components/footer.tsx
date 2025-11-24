@@ -1,0 +1,80 @@
+'use client'
+
+import Link from 'next/link'
+
+const SECTIONS = [
+  {
+    title: 'Legal',
+    items: [
+      { label: 'Terms', href: '/terms' },
+      { label: 'Privacy', href: '/privacy' },
+      { label: 'Cookies', href: '/cookies' },
+      { label: 'Licenses', href: '/licenses' },
+    ],
+  },
+  {
+    title: 'Products',
+    items: [
+      { label: 'Cacao Scan', href: '/product/cacao-scan' },
+      { label: 'Mobile App', href: '/product/mobile' },
+      { label: 'API', href: '/product/api' },
+      { label: 'Dashboard', href: '/product/dashboard' },
+    ],
+  },
+  {
+    title: 'Models',
+    items: [
+      { label: 'Leaf Diagnosis', href: '/models/leaf-diagnosis' },
+      { label: 'Pod Detection', href: '/models/pod-detection' },
+      { label: 'Yield Prediction', href: '/models/yield-prediction' },
+      { label: 'Anomaly Detection', href: '/models/anomaly' },
+    ],
+  },
+  {
+    title: 'Company',
+    items: [
+      { label: 'About', href: '/company/about' },
+      { label: 'Careers', href: '/company/careers' },
+      { label: 'Contact', href: '/company/contact' },
+      { label: 'Blog', href: '/company/blog' },
+    ],
+  },
+]
+
+export default function Footer() {
+  return (
+    <footer className='grid grid-cols-12 gap-8 p-8 border-t min-h-[280px] items-center'>
+      <div className='col-span-12 md:col-span-3 flex flex-col gap-2'>
+        <div className='text-xs md:text-sm font-thin uppercase tracking-widest'>
+          DeepCacao
+        </div>
+        <div className='text-xs font-light'>
+          AI for cacao health
+        </div>
+      </div>
+      <div className='col-span-12 md:col-span-6'>
+        <div className='grid grid-cols-4 gap-8'>
+          {SECTIONS.map((section) => (
+            <div key={section.title} className='flex flex-col gap-3'>
+              <div className='text-xs md:text-sm font-thin uppercase tracking-widest'>
+                {section.title}
+              </div>
+              <div className='flex flex-col gap-2 text-xs md:text-sm font-light'>
+                {section.items.map((item) => (
+                  <Link key={item.label} href={item.href}>
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className='col-span-12 md:col-span-3 flex items-start justify-end'>
+        <div className='text-xs md:text-sm font-light'>
+          © 2025 DeepCacao
+        </div>
+      </div>
+    </footer>
+  )
+}
