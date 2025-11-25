@@ -2,8 +2,8 @@
 
 export default function CTA() {
   return (
-    <section className='grid grid-cols-12 gap-8 p-8'>
-      <div className='col-span-6 col-start-4 flex flex-col items-center justify-center gap-4 text-center'>
+    <section className='grid grid-cols-1 md:grid-cols-12 min-h-[calc(100vh-5rem)] md:h-[calc(100vh-5rem)] gap-8'>
+      <div className='col-span-1 md:col-span-6 md:col-start-4 flex flex-col items-center justify-center gap-4 text-center'>
         <h2 className='text-4xl font-thin uppercase tracking-widest'>
           Get started
         </h2>
