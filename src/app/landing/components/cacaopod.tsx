@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react"
-import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Box3, Vector3, Color, SRGBColorSpace, Group } from "three"
+import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Box3, Vector3, SRGBColorSpace, Group } from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader"
 

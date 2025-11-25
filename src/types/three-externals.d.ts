@@ -15,10 +15,10 @@ declare module "three/examples/jsm/loaders/GLTFLoader" {
   export interface GLTF {
     scene: Group
     scenes: Group[]
-    animations: any[]
-    asset: any
-    parser: any
-    userData: any
+    animations: unknown[]
+    asset: unknown
+    parser: unknown
+    userData: unknown
   }
   export class GLTFLoader extends Loader {
     load(
