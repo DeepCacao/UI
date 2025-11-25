@@ -14,33 +14,44 @@ export default function ModelShowcase() {
     const overlayRef = useRef<HTMLDivElement>(null)
 
     useGSAP(() => {
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: containerRef.current,
-                start: "top top",
-                end: "+=300%", // Pin for 3 screen heights
-                pin: true,
-                scrub: 1,
-                onUpdate: (self) => {
-                    if (cacaoRef.current?.model) {
-                        // Rotate 360 degrees over the scroll duration
-                        cacaoRef.current.model.rotation.y = self.progress * Math.PI * 2
+        const mm = gsap.matchMedia();
+
+        mm.add({
+            isMobile: "(max-width: 767px)",
+            isDesktop: "(min-width: 768px)",
+        }, (context) => {
+            const { isMobile } = context.conditions || {};
+
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: "top top",
+                    end: "+=300%", // Pin for 3 screen heights
+                    pin: true,
+                    scrub: 1,
+                    onUpdate: (self) => {
+                        if (cacaoRef.current?.model) {
+                            // Rotate 360 degrees over the scroll duration
+                            cacaoRef.current.model.rotation.y = self.progress * Math.PI * 2
+                        }
                     }
                 }
-            }
-        })
+            })
 
-        // Annotation 1: Left Top (Fungal Infection)
-        tl.fromTo(".annotation-1", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 1 })
-            .to(".annotation-1", { opacity: 0, x: -50, duration: 1 }, "+=1")
+            // Annotation 1: Left Top (Desktop) / Left Bottom (Mobile)
+            tl.fromTo(".annotation-1", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 1 })
+                .to(".annotation-1", { opacity: 0, x: -50, duration: 1 }, "+=1")
 
-        // Annotation 2: Right Middle (Pest Damage)
-        tl.fromTo(".annotation-2", { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 1 })
-            .to(".annotation-2", { opacity: 0, x: 50, duration: 1 }, "+=1")
+            // Annotation 2: Right Middle (Desktop) / Left Bottom (Mobile)
+            // On mobile, it slides from left (-50). On desktop, from right (50).
+            const xOffset2 = isMobile ? -50 : 50;
+            tl.fromTo(".annotation-2", { opacity: 0, x: xOffset2 }, { opacity: 1, x: 0, duration: 1 })
+                .to(".annotation-2", { opacity: 0, x: xOffset2, duration: 1 }, "+=1")
 
-        // Annotation 3: Left Bottom (Structural Anomalies)
-        tl.fromTo(".annotation-3", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 1 })
-            .to(".annotation-3", { opacity: 0, x: -50, duration: 1 }, "+=1")
+            // Annotation 3: Left Bottom
+            tl.fromTo(".annotation-3", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 1 })
+                .to(".annotation-3", { opacity: 0, x: -50, duration: 1 }, "+=1")
+        });
 
     }, { scope: containerRef })
 
@@ -54,12 +65,12 @@ export default function ModelShowcase() {
             </div>
 
             {/* Annotations Overlay */}
-            <div ref={overlayRef} className='absolute inset-0 z-20 pointer-events-none'>
+            <div ref={overlayRef} className='absolute inset-0 z-20 pointer-events-none grid grid-cols-1 grid-rows-[1fr_auto] md:grid-cols-12 md:grid-rows-6 gap-4 pb-2 md:pb-4'>
 
                 {/* Annotation 1 */}
-                <div className="annotation-1 absolute top-[15%] left-4 md:left-10 lg:left-20 max-w-[150px] md:max-w-xs opacity-0">
+                <div className="annotation-1 row-start-2 col-start-1 place-self-end-start md:col-span-4 md:row-start-2 md:col-start-2 md:place-self-center opacity-0 max-w-[80%] md:max-w-xs">
                     <div className="flex items-center gap-2 md:gap-4">
-                        <div className="text-right">
+                        <div className="text-left md:text-right">
                             <h3 className="text-lg md:text-2xl font-bold uppercase">Fungal Infection</h3>
                             <p className="text-xs md:text-base text-muted-foreground">Detects early signs of Moniliophthora roreri.</p>
                         </div>
@@ -68,8 +79,8 @@ export default function ModelShowcase() {
                 </div>
 
                 {/* Annotation 2 */}
-                <div className="annotation-2 absolute top-[55%] md:top-1/2 right-4 md:right-10 lg:right-20 max-w-[150px] md:max-w-xs opacity-0 transform -translate-y-1/2">
-                    <div className="flex items-center gap-2 md:gap-4 flex-row-reverse">
+                <div className="annotation-2 row-start-2 col-start-1 place-self-end-start md:col-span-4 md:row-start-3 md:col-start-8 md:place-self-center opacity-0 max-w-[80%] md:max-w-xs">
+                    <div className="flex items-center gap-2 md:gap-4 flex-row md:flex-row-reverse">
                         <div className="text-left">
                             <h3 className="text-lg md:text-2xl font-bold uppercase">Pest Damage</h3>
                             <p className="text-xs md:text-base text-muted-foreground">Identifies bore holes from Carmenta foraseminis.</p>
@@ -79,9 +90,9 @@ export default function ModelShowcase() {
                 </div>
 
                 {/* Annotation 3 */}
-                <div className="annotation-3 absolute bottom-[15%] left-4 md:left-10 lg:left-20 max-w-[150px] md:max-w-xs opacity-0">
+                <div className="annotation-3 row-start-2 col-start-1 place-self-end-start md:col-span-4 md:row-start-5 md:col-start-2 md:place-self-center opacity-0 max-w-[80%] md:max-w-xs">
                     <div className="flex items-center gap-2 md:gap-4">
-                        <div className="text-right">
+                        <div className="text-left md:text-right">
                             <h3 className="text-lg md:text-2xl font-bold uppercase">Structural Anomalies</h3>
                             <p className="text-xs md:text-base text-muted-foreground">Analyzes pod shape for growth irregularities.</p>
                         </div>
