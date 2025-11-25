@@ -68,7 +68,7 @@ export default function ModelShowcase() {
             <div ref={overlayRef} className='absolute inset-0 z-20 pointer-events-none grid grid-cols-1 grid-rows-[1fr_auto] md:grid-cols-12 md:grid-rows-6 gap-4 pb-2 md:pb-4'>
 
                 {/* Annotation 1 */}
-                <div className="annotation-1 row-start-2 col-start-1 place-self-end-start md:col-span-4 md:row-start-2 md:col-start-2 md:place-self-center opacity-0 max-w-[80%] md:max-w-xs">
+                <div className="annotation-1 row-start-2 col-start-1 place-self-end-start md:col-span-4 md:row-start-2 md:col-start-1 md:place-self-center opacity-0 max-w-[80%] md:max-w-xs">
                     <div className="flex items-center gap-2 md:gap-4">
                         <div className="text-left md:text-right">
                             <h3 className="text-lg md:text-2xl font-bold uppercase">Fungal Infection</h3>
@@ -79,7 +79,7 @@ export default function ModelShowcase() {
                 </div>
 
                 {/* Annotation 2 */}
-                <div className="annotation-2 row-start-2 col-start-1 place-self-end-start md:col-span-4 md:row-start-3 md:col-start-8 md:place-self-center opacity-0 max-w-[80%] md:max-w-xs">
+                <div className="annotation-2 row-start-2 col-start-1 place-self-end-start md:col-span-4 md:row-start-3 md:col-start-9 md:place-self-center opacity-0 max-w-[80%] md:max-w-xs">
                     <div className="flex items-center gap-2 md:gap-4 flex-row md:flex-row-reverse">
                         <div className="text-left">
                             <h3 className="text-lg md:text-2xl font-bold uppercase">Pest Damage</h3>
@@ -90,7 +90,7 @@ export default function ModelShowcase() {
                 </div>
 
                 {/* Annotation 3 */}
-                <div className="annotation-3 row-start-2 col-start-1 place-self-end-start md:col-span-4 md:row-start-5 md:col-start-2 md:place-self-center opacity-0 max-w-[80%] md:max-w-xs">
+                <div className="annotation-3 row-start-2 col-start-1 place-self-end-start md:col-span-4 md:row-start-5 md:col-start-1 md:place-self-center opacity-0 max-w-[80%] md:max-w-xs">
                     <div className="flex items-center gap-2 md:gap-4">
                         <div className="text-left md:text-right">
                             <h3 className="text-lg md:text-2xl font-bold uppercase">Structural Anomalies</h3>
