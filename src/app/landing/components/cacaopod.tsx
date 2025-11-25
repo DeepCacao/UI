@@ -12,6 +12,7 @@ export interface CacaoPodHandle {
 const CacaoPod = forwardRef<CacaoPodHandle, { className?: string }>(({ className }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const modelRef = useRef<Group | null>(null)
+  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useImperativeHandle(ref, () => ({
     get model() {
@@ -107,10 +108,22 @@ const CacaoPod = forwardRef<CacaoPodHandle, { className?: string }>(({ className
       for (const entry of entries) {
         if (entry.target === container) {
           const { width, height } = entry.contentRect
-          renderer.setSize(width, height)
-          camera.aspect = width / height
-          camera.updateProjectionMatrix()
-          updateCamera()
+
+          // Safety check for 0 dimensions to prevent context loss/flickering
+          if (width === 0 || height === 0) return
+
+          // Debounce resize to prevent thrashing
+          if (resizeTimeoutRef.current) {
+            clearTimeout(resizeTimeoutRef.current)
+          }
+
+          resizeTimeoutRef.current = setTimeout(() => {
+            if (!container) return
+            renderer.setSize(width, height)
+            camera.aspect = width / height
+            camera.updateProjectionMatrix()
+            updateCamera()
+          }, 100) // 100ms debounce
         }
       }
     })
@@ -125,6 +138,7 @@ const CacaoPod = forwardRef<CacaoPodHandle, { className?: string }>(({ className
 
     return () => {
       resizeObserver.disconnect()
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current)
       cancelAnimationFrame(frame)
       renderer.dispose()
       while (scene.children.length > 0) {
