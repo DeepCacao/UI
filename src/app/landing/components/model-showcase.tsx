@@ -57,35 +57,35 @@ export default function ModelShowcase() {
             <div ref={overlayRef} className='absolute inset-0 z-20 pointer-events-none'>
 
                 {/* Annotation 1 */}
-                <div className="annotation-1 absolute top-1/4 left-10 md:left-20 max-w-xs opacity-0">
-                    <div className="flex items-center gap-4">
+                <div className="annotation-1 absolute top-[15%] left-4 md:left-10 lg:left-20 max-w-[150px] md:max-w-xs opacity-0">
+                    <div className="flex items-center gap-2 md:gap-4">
                         <div className="text-right">
-                            <h3 className="text-2xl font-bold uppercase">Fungal Infection</h3>
-                            <p className="text-muted-foreground">Detects early signs of Moniliophthora roreri.</p>
+                            <h3 className="text-lg md:text-2xl font-bold uppercase">Fungal Infection</h3>
+                            <p className="text-xs md:text-base text-muted-foreground">Detects early signs of Moniliophthora roreri.</p>
                         </div>
-                        <div className="w-16 h-[1px] bg-foreground/50" />
+                        <div className="w-8 md:w-16 h-[1px] bg-foreground/50" />
                     </div>
                 </div>
 
                 {/* Annotation 2 */}
-                <div className="annotation-2 absolute top-1/2 right-10 md:right-20 max-w-xs opacity-0 transform -translate-y-1/2">
-                    <div className="flex items-center gap-4 flex-row-reverse">
+                <div className="annotation-2 absolute top-[55%] md:top-1/2 right-4 md:right-10 lg:right-20 max-w-[150px] md:max-w-xs opacity-0 transform -translate-y-1/2">
+                    <div className="flex items-center gap-2 md:gap-4 flex-row-reverse">
                         <div className="text-left">
-                            <h3 className="text-2xl font-bold uppercase">Pest Damage</h3>
-                            <p className="text-muted-foreground">Identifies bore holes from Carmenta foraseminis.</p>
+                            <h3 className="text-lg md:text-2xl font-bold uppercase">Pest Damage</h3>
+                            <p className="text-xs md:text-base text-muted-foreground">Identifies bore holes from Carmenta foraseminis.</p>
                         </div>
-                        <div className="w-16 h-[1px] bg-foreground/50" />
+                        <div className="w-8 md:w-16 h-[1px] bg-foreground/50" />
                     </div>
                 </div>
 
                 {/* Annotation 3 */}
-                <div className="annotation-3 absolute bottom-1/4 left-10 md:left-20 max-w-xs opacity-0">
-                    <div className="flex items-center gap-4">
+                <div className="annotation-3 absolute bottom-[15%] left-4 md:left-10 lg:left-20 max-w-[150px] md:max-w-xs opacity-0">
+                    <div className="flex items-center gap-2 md:gap-4">
                         <div className="text-right">
-                            <h3 className="text-2xl font-bold uppercase">Structural Anomalies</h3>
-                            <p className="text-muted-foreground">Analyzes pod shape for growth irregularities.</p>
+                            <h3 className="text-lg md:text-2xl font-bold uppercase">Structural Anomalies</h3>
+                            <p className="text-xs md:text-base text-muted-foreground">Analyzes pod shape for growth irregularities.</p>
                         </div>
-                        <div className="w-16 h-[1px] bg-foreground/50" />
+                        <div className="w-8 md:w-16 h-[1px] bg-foreground/50" />
                     </div>
                 </div>
 

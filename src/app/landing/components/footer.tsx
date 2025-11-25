@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import AsciiImg from '@/components/AsciiImg/AsciiImg'
 
 const SECTIONS = [
   {
@@ -43,8 +44,17 @@ const SECTIONS = [
 
 export default function Footer() {
   return (
-    <footer className='grid grid-cols-12 gap-8 p-8 border-t min-h-[280px] items-center'>
-      <div className='col-span-12 md:col-span-3 flex flex-col gap-2'>
+    <footer className='relative grid grid-cols-12 gap-8 p-8 border-t min-h-[280px] items-center overflow-hidden'>
+      <div className='absolute inset-0 pointer-events-none'>
+        <AsciiImg
+          src='/capilla.png'
+          color='original'
+          backgroundColor='#ffffff'
+          fontSize={15}
+          className='w-full h-full opacity-30 contain'
+        />
+      </div>
+      <div className='col-span-12 md:col-span-3 flex flex-col gap-2 z-10'>
         <div className='text-xs md:text-sm font-thin uppercase tracking-widest'>
           DeepCacao
         </div>
@@ -52,7 +62,7 @@ export default function Footer() {
           AI for cacao health
         </div>
       </div>
-      <div className='col-span-12 md:col-span-6'>
+      <div className='col-span-12 md:col-span-6 z-10'>
         <div className='grid grid-cols-4 gap-8'>
           {SECTIONS.map((section) => (
             <div key={section.title} className='flex flex-col gap-3'>
@@ -70,7 +80,7 @@ export default function Footer() {
           ))}
         </div>
       </div>
-      <div className='col-span-12 md:col-span-3 flex items-start justify-end'>
+      <div className='col-span-12 md:col-span-3 flex items-start justify-end z-10'>
         <div className='text-xs md:text-sm font-light'>
           © 2025 DeepCacao
         </div>
