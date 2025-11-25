@@ -44,7 +44,7 @@ const SECTIONS = [
 
 export default function Footer() {
   return (
-    <footer className='relative grid grid-cols-1 md:grid-cols-12 gap-12 p-4 border-t min-h-[280px] items-start overflow-hidden'>
+    <footer className='relative grid grid-cols-1 md:grid-cols-12 gap-12 p-2 md:p-4 border-t min-h-[280px] items-start overflow-hidden'>
       <div className='absolute inset-0 pointer-events-none'>
         <AsciiImg
           src='/capilla.png'
