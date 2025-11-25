@@ -56,7 +56,7 @@ export default function ModelShowcase() {
     }, { scope: containerRef })
 
     return (
-        <section ref={containerRef} className='h-screen w-full relative overflow-hidden bg-background flex items-center justify-center will-change-transform'>
+        <section ref={containerRef} className='h-[100svh] w-full relative overflow-hidden bg-background flex items-center justify-center will-change-transform'>
 
             {/* 3D Model Centered */}
             <div className='absolute inset-0 flex items-center justify-center z-10'>
