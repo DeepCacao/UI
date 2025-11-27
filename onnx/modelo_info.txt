@@ -1,0 +1,49 @@
+======================================================================
+INFORMACIÓN DEL MODELO EXPORTADO
+Proyecto: Detección de Enfermedades en Mazorcas de Cacao
+======================================================================
+
+Fecha de exportación: 2025-11-27 09:39:21
+
+ARCHIVOS
+----------------------------------------------------------------------
+Modelo original (PyTorch): c:\Users\Asus\Desktop\proyecto_cacao\modelos\best.pt
+Modelo exportado (ONNX): c:\Users\Asus\Desktop\proyecto_cacao\modelos\onnx_export\best.onnx
+Tamaño PyTorch: 41.25 MB
+Tamaño ONNX: 80.04 MB
+
+CONFIGURACIÓN DE EXPORTACIÓN
+----------------------------------------------------------------------
+Tamaño de imagen: 1024x1024
+Opset ONNX: 12
+Simplificado: Sí
+Entrada dinámica: No
+Precisión: FP32 (full)
+Batch size: 1
+
+CLASES DEL MODELO
+----------------------------------------------------------------------
+  0: Fitoftora
+  1: Monilia
+  2: Sana
+
+USO DEL MODELO ONNX
+----------------------------------------------------------------------
+Ejemplo con Ultralytics:
+```python
+from ultralytics import YOLO
+model = YOLO('best.onnx')
+results = model.predict('imagen.jpg', conf=0.35)
+```
+
+Ejemplo con ONNX Runtime:
+```python
+import onnxruntime as ort
+session = ort.InferenceSession('best.onnx')
+# Preprocesar imagen a (1, 3, 1024, 1024) float32
+outputs = session.run(None, {'images': input_tensor})
+```
+
+======================================================================
+FIN DE LA INFORMACIÓN
+======================================================================

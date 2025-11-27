@@ -1,5 +1,0 @@
-gradio
-ultralytics
-torch
-pillow
-numpy
