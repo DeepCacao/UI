@@ -3,14 +3,14 @@
 export default function Hero() {
   return (
     <section className="grid h-[calc(100vh-5rem)] grid-rows-2 gap-8">
-      <div className="relative h-2/5 md:h-3/4 bg-foreground row-span-1">
+      <div className="relative h-2/5 md:h-3/4 row-span-1">
         <video
           autoPlay
           muted
           loop
           playsInline
           preload="metadata"
-          className="absolute inset-0 w-full h-full object-cover "
+          className="absolute inset-0 w-full rounded-xl h-full object-cover "
         >
           <source src="/videos/hero2.mp4" type="video/mp4" />
         </video>

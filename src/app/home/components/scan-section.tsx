@@ -3,6 +3,7 @@
 // import { Client } from "@gradio/client"
 import { useState, useRef, useEffect } from 'react'
 import { UploadZone } from './upload-zone'
+import { TextShimmer } from '@/components/ui/text-shimmer'
 
 const LOADING_SYMBOLS = ['✱', '✲', '✵', '✶', '✷', '✸', '✹', '✺', '✻', '✼', '✽', '✾', '✢']
 
@@ -93,9 +94,9 @@ export default function ScanSection() {
             
             {/* Header - Editorial Style */}
             <div className="text-center space-y-4 pt-10 md:pt-0">
-            <h1 className="text-4xl md:text-5xl font-light italic tracking-tight text-foreground leading-tight">
-                Cacao Disease Detection
-            </h1>
+            <TextShimmer as="h1" className="text-4xl md:text-5xl font-medium tracking-tight leading-tight" duration={4} repeatDelay={4}>
+                Hi, how are you?
+            </TextShimmer>
             <p className="text-sm md:text-base text-neutral-500 max-w-md mx-auto leading-relaxed">
                 Advanced computer vision for agricultural diagnostics. Upload a sample to identify potential pathogens.
             </p>
@@ -136,9 +137,9 @@ export default function ScanSection() {
              {/* Footer Info */}
             {!result && !analyzing && !error && (
                 <div className="text-center">
-                    <p className="text-[10px] text-neutral-300 dark:text-neutral-700 uppercase tracking-widest">
+                    <TextShimmer as="p" className="text-[10px] uppercase tracking-widest" duration={3} spread={1}>
                         Powered by Cacao-Diseases Model v1.0
-                    </p>
+                    </TextShimmer>
                 </div>
             )}
           </div>
@@ -146,22 +147,24 @@ export default function ScanSection() {
 
       {/* Mobile Fixed Bottom Button */}
       <div className="md:hidden absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-background via-background to-transparent z-50">
-            <button 
-                onClick={handleUploadClick}
-                disabled={analyzing}
-                className="w-full py-4 bg-foreground text-background text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 disabled:opacity-80 disabled:cursor-not-allowed"
-            >
-                <div className="flex items-center justify-center w-5 h-5">
-                    {analyzing ? (
-                        <span className="text-lg leading-none animate-pulse">
-                            {LOADING_SYMBOLS[symbolIndex]}
-                        </span>
-                    ) : (
-                        <div className="w-1.5 h-1.5 bg-background rounded-full"></div>
-                    )}
-                </div>
-                <span>{analyzing ? "Analyzing..." : "Upload Image"}</span>
-            </button>
+            <div className="w-full p-[2px] rounded-full bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 shadow-lg transition-all active:scale-[0.98]">
+                <button 
+                    onClick={handleUploadClick}
+                    disabled={analyzing}
+                    className="w-full py-4 rounded-full bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 disabled:opacity-80 disabled:cursor-not-allowed"
+                >
+                    <div className="flex items-center justify-center w-5 h-5">
+                        {analyzing ? (
+                            <span className="text-lg leading-none animate-pulse">
+                                {LOADING_SYMBOLS[symbolIndex]}
+                            </span>
+                        ) : (
+                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                        )}
+                    </div>
+                    <span>{analyzing ? "Analyzing..." : "Upload Image"}</span>
+                </button>
+            </div>
       </div>
 
     </section>
