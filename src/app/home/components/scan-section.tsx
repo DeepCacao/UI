@@ -38,9 +38,10 @@ const MODEL_LOADING_FLOW = [
 
 interface ScanSectionProps {
   confidenceThreshold: number
+  nmsThreshold: number
 }
 
-export default function ScanSection({ confidenceThreshold }: ScanSectionProps) {
+export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanSectionProps) {
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [resultImage, setResultImage] = useState<string | null>(null)
@@ -131,7 +132,7 @@ export default function ScanSection({ confidenceThreshold }: ScanSectionProps) {
           img.onload = async () => {
             try {
               // Realizar inferencia
-              const predictions = await modelRef.current!.predict(img)
+              const predictions = await modelRef.current!.predict(img, nmsThreshold)
               console.log("Predicciones:", predictions)
 
               setResult({
@@ -222,7 +223,7 @@ export default function ScanSection({ confidenceThreshold }: ScanSectionProps) {
                           pointerEvents: 'none'
                         }}
                       >
-                        <span 
+                        <span
                           className="absolute -top-6 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10"
                           style={{ transform: `rotate(${-pred.obb.rotation}rad)` }} // Contra-rotar el texto para que se lea horizontal
                         >
@@ -231,7 +232,7 @@ export default function ScanSection({ confidenceThreshold }: ScanSectionProps) {
                       </div>
                     )
                   }
-                  
+
                   // Fallback a AABB si no hay OBB
                   return (
                     <div

@@ -34,7 +34,7 @@ export class CacaoModel {
     }
   }
 
-  async predict(imageElement: HTMLImageElement): Promise<any[]> {
+  async predict(imageElement: HTMLImageElement, nmsThreshold: number = 0.60): Promise<any[]> {
     if (!this.session) await this.load();
     if (!this.session) throw new Error("No se pudo iniciar la sesión del modelo");
 
@@ -61,7 +61,8 @@ export class CacaoModel {
       imageElement.width,
       imageElement.height,
       outputTensor.dims as number[],
-      tensor.dims // Pasamos dims del tensor para saber el tamaño de entrada usado (1024x1024)
+      tensor.dims, // Pasamos dims del tensor para saber el tamaño de entrada usado (1024x1024)
+      nmsThreshold
     );
   }
 
@@ -106,7 +107,7 @@ export class CacaoModel {
     return new Tensor('float32', float32Data, [1, 3, targetHeight, targetWidth]);
   }
 
-  private postprocess(data: Float32Array, originalWidth: number, originalHeight: number, dims: number[], inputDims?: readonly number[]): any[] {
+  private postprocess(data: Float32Array, originalWidth: number, originalHeight: number, dims: number[], inputDims?: readonly number[], nmsThreshold: number = 0.60): any[] {
     let numFeatures = dims[1];
     let numAnchors = dims[2];
 
@@ -240,10 +241,10 @@ export class CacaoModel {
     }
 
 
-    // 1. NMS Standard (0.60 para ser más permisivo con objetos rotados cercanos)
+    // 1. NMS Standard (usando el threshold dinámico)
     // Al usar AABB en objetos rotados, el solapamiento es mayor al real.
     // Subimos el umbral para evitar suprimir vecinos legítimos.
-    const nmsResult = this.nms(boxes, 0.60);
+    const nmsResult = this.nms(boxes, nmsThreshold);
     console.log(`✅ Cajas después de NMS: ${nmsResult.length}`);
 
     // 2. Fusión de cajas cercanas (Box Merging)

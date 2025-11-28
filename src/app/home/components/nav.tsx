@@ -8,9 +8,11 @@ import NavOverlay from "./nav-overlay";
 interface NavProps {
     confidenceThreshold?: number
     setConfidenceThreshold?: (value: number) => void
+    nmsThreshold?: number
+    setNmsThreshold?: (value: number) => void
 }
 
-export default function Nav({ confidenceThreshold, setConfidenceThreshold }: NavProps) {
+export default function Nav({ confidenceThreshold, setConfidenceThreshold, nmsThreshold, setNmsThreshold }: NavProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
@@ -29,6 +31,8 @@ export default function Nav({ confidenceThreshold, setConfidenceThreshold }: Nav
                 onClose={() => setIsMenuOpen(false)}
                 confidenceThreshold={confidenceThreshold}
                 setConfidenceThreshold={setConfidenceThreshold}
+                nmsThreshold={nmsThreshold}
+                setNmsThreshold={setNmsThreshold}
             />
         </>
     );
