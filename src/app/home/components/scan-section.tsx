@@ -4,8 +4,37 @@ import { useState, useRef, useEffect } from 'react'
 import { UploadZone } from './upload-zone'
 import { TextShimmer } from '@/components/ui/text-shimmer'
 import { CacaoModel } from '@/lib/onnx-model'
+import { DotFlow } from '@/components/ui/dot-flow'
 
 const LOADING_SYMBOLS = ['✱', '✲', '✵', '✶', '✷', '✸', '✹', '✺', '✻', '✼', '✽', '✾', '✢']
+
+const MODEL_LOADING_FLOW = [
+  {
+    title: "Loading Model",
+    frames: [
+      [24],
+      [24, 17, 31, 23, 25],
+      [24, 17, 31, 23, 25, 10, 38, 22, 26, 16, 18, 30, 32],
+      [24, 17, 31, 23, 25, 10, 38, 22, 26, 16, 18, 30, 32, 3, 45, 21, 27, 9, 11, 37, 39],
+    ],
+    duration: 150,
+    repeatCount: 3
+  },
+  {
+    title: "Initializing AI",
+    frames: [
+      [0, 1, 2, 3, 4, 5, 6],
+      [7, 8, 9, 10, 11, 12, 13],
+      [14, 15, 16, 17, 18, 19, 20],
+      [21, 22, 23, 24, 25, 26, 27],
+      [28, 29, 30, 31, 32, 33, 34],
+      [35, 36, 37, 38, 39, 40, 41],
+      [42, 43, 44, 45, 46, 47, 48],
+    ],
+    duration: 100,
+    repeatCount: 3
+  }
+]
 
 interface ScanSectionProps {
   confidenceThreshold: number
@@ -148,11 +177,7 @@ export default function ScanSection({ confidenceThreshold }: ScanSectionProps) {
             {/* Model Status Indicator - Replaced with minimal loader below */}
             {modelLoading && (
               <div className="flex justify-center pt-2 animate-in fade-in duration-300">
-                <div className="flex gap-1">
-                  <div className="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce"></div>
-                </div>
+                <DotFlow items={MODEL_LOADING_FLOW} />
               </div>
             )}
           </div>
