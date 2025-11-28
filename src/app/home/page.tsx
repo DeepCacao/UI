@@ -5,7 +5,7 @@ import ScanSection from './components/scan-section'
 import Nav from './components/nav'
 
 export default function HomePage() {
-  const [confidenceThreshold, setConfidenceThreshold] = useState(0.4)
+  const [confidenceThreshold, setConfidenceThreshold] = useState(0.01)
 
   return (
     <main className="h-[100dvh] w-full bg-background overflow-hidden flex flex-col">

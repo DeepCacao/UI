@@ -138,7 +138,8 @@ export default function ScanSection({ confidenceThreshold }: ScanSectionProps) {
                 predictions: predictions.map(p => ({
                   label: p.class,
                   score: p.confidence,
-                  box: p.bbox
+                  box: p.bbox,
+                  obb: p.obb
                 }))
               })
             } catch (err) {
@@ -204,8 +205,34 @@ export default function ScanSection({ confidenceThreshold }: ScanSectionProps) {
               {!analyzing && result?.predictions && result.predictions
                 .filter((p: any) => p.score >= confidenceThreshold)
                 .map((pred: any, i: number) => {
-                  // Las coordenadas vienen NORMALIZADAS (0-1) desde el modelo
-                  // Simplemente multiplicamos por 100 para obtener porcentajes CSS
+                  // Si tenemos información OBB (Oriented Bounding Box), la usamos
+                  if (pred.obb) {
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          position: 'absolute',
+                          left: `${pred.obb.cx * 100}%`,
+                          top: `${pred.obb.cy * 100}%`,
+                          width: `${pred.obb.w * 100}%`,
+                          height: `${pred.obb.h * 100}%`,
+                          transform: `translate(-50%, -50%) rotate(${pred.obb.rotation}rad)`,
+                          border: '2px solid #ef4444',
+                          backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                          pointerEvents: 'none'
+                        }}
+                      >
+                        <span 
+                          className="absolute -top-6 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10"
+                          style={{ transform: `rotate(${-pred.obb.rotation}rad)` }} // Contra-rotar el texto para que se lea horizontal
+                        >
+                          {pred.label} {Math.round(pred.score * 100)}%
+                        </span>
+                      </div>
+                    )
+                  }
+                  
+                  // Fallback a AABB si no hay OBB
                   return (
                     <div
                       key={i}

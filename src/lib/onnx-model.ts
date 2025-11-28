@@ -169,24 +169,23 @@ export class CacaoModel {
         }
       }
 
-      // Umbral de confianza (0.25)
-      if (maxScore > 0.25) {
-        let cx, cy, w, h;
+      // Umbral de confianza base muy bajo para permitir que el slider de la UI decida
+      if (maxScore > 0.01) {
+        let cx, cy, w, h, angle;
 
         if (transposed) {
           cx = data[i * numFeatures + 0];
           cy = data[i * numFeatures + 1];
           w = data[i * numFeatures + 2];
           h = data[i * numFeatures + 3];
+          angle = data[i * numFeatures + 7];
         } else {
           cx = data[0 * numAnchors + i];
           cy = data[1 * numAnchors + i];
           w = data[2 * numAnchors + i];
           h = data[3 * numAnchors + i];
+          angle = data[7 * numAnchors + i];
         }
-
-        // DEBUG: Ver coordenadas crudas
-        console.log(`📦 RAW COORDS: cx=${cx}, cy=${cy}, w=${w}, h=${h}`);
 
         // CORRECCIÓN DE COORDENADAS (Letterbox -> Original)
         // Las coordenadas cx, cy, w, h vienen en escala 0-1024 (del modelo)
@@ -203,46 +202,58 @@ export class CacaoModel {
         h /= scale;
 
         // 3. Convertir de centro (cx, cy) a esquina superior izquierda (x1, y1)
+        // Esto es para el BBOX standard (AABB) usado en NMS
         const x1 = cx - w / 2;
         const y1 = cy - h / 2;
 
         // 4. NORMALIZACIÓN FINAL (0-1)
         // Dividimos por las dimensiones originales para tener coordenadas relativas
-        // Esto facilita enormemente el renderizado en CSS (left: x * 100%)
         const normX = x1 / originalWidth;
         const normY = y1 / originalHeight;
         const normW = w / originalWidth;
         const normH = h / originalHeight;
 
-        boxes.push({
+        // Calcular centro normalizado para OBB
+        const normCX = cx / originalWidth;
+        const normCY = cy / originalHeight;
+
+        const box = {
           class: this.classes[maxClass],
           confidence: maxScore,
           bbox: [
-            normX, // x (0-1)
-            normY, // y (0-1)
+            normX, // x (0-1) - Top Left (Unrotated)
+            normY, // y (0-1) - Top Left (Unrotated)
             normW, // w (0-1)
             normH  // h (0-1)
           ],
-          // Ya no necesitamos pasar originalWidth/Height porque bbox es relativo
-        });
+          obb: {
+            cx: normCX,
+            cy: normCY,
+            w: normW,
+            h: normH,
+            rotation: angle
+          }
+        };
+
+        boxes.push(box);
       }
     }
 
-    console.log(`🔍 Cajas antes de NMS: ${boxes.length}`);
 
-    // 1. NMS Standard (0.45 según parámetros del entrenador)
-    const nmsResult = this.nms(boxes, 0.45);
+    // 1. NMS Standard (0.60 para ser más permisivo con objetos rotados cercanos)
+    // Al usar AABB en objetos rotados, el solapamiento es mayor al real.
+    // Subimos el umbral para evitar suprimir vecinos legítimos.
+    const nmsResult = this.nms(boxes, 0.60);
     console.log(`✅ Cajas después de NMS: ${nmsResult.length}`);
 
     // 2. Fusión de cajas cercanas (Box Merging)
-    // Esto es necesario porque el modelo ONNX parece detectar parches en lugar de objetos completos
     const mergedResult = this.mergeBoxes(nmsResult);
     console.log(`📦 Cajas después de Fusión: ${mergedResult.length}`);
 
     return mergedResult;
   }
 
-  private nms(boxes: any[], iouThreshold: number = 0.45): any[] {
+  private nms(boxes: any[], iouThreshold: number = 0.60): any[] {
     if (boxes.length === 0) return [];
 
     // Ordenar por confianza descendente
@@ -259,9 +270,23 @@ export class CacaoModel {
       for (let j = i + 1; j < boxes.length; j++) {
         if (!active[j]) continue;
 
-        const iou = this.calculateIoU(boxes[i].bbox, boxes[j].bbox);
-        if (iou > iouThreshold) {
-          active[j] = false;
+        // ERROR CORREGIDO: Pasar el objeto completo 'boxes[i]' y 'boxes[j]' 
+        // para que calculateIoU pueda acceder a la propiedad .obb
+        const iou = this.calculateIoU(boxes[i], boxes[j]);
+
+        // NMS Class-Specific:
+        // Solo suprimir si son de la misma clase Y se solapan significativamente.
+        // Si son clases diferentes, permitimos el solapamiento (podrían ser dos objetos distintos cercanos)
+        // A MENOS que el solapamiento sea casi total (> 0.90), en cuyo caso asumimos que es el mismo objeto con doble detección
+
+        const sameClass = boxes[i].class === boxes[j].class;
+
+        if (sameClass && iou > iouThreshold) {
+          active[j] = false; // Suprimir duplicado de misma clase
+          // console.log(`⚠️ NMS Same-Class suprimido: ${boxes[j].class} (Conf: ${boxes[j].confidence.toFixed(2)}) por (Conf: ${boxes[i].confidence.toFixed(2)}) - IoU: ${iou.toFixed(2)}`);
+        } else if (!sameClass && iou > 0.90) {
+          active[j] = false; // Suprimir duplicado de distinta clase (muy probable error del modelo)
+          console.log(`⚠️ NMS Cross-Class suprimido: ${boxes[j].class} (${boxes[j].confidence.toFixed(2)}) vs ${boxes[i].class} (${boxes[i].confidence.toFixed(2)}) - IoU: ${iou.toFixed(2)}`);
         }
       }
     }
@@ -321,33 +346,36 @@ export class CacaoModel {
           continue;
         }
 
-        // Calcular límites de la super-caja
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        let maxScore = 0;
+        // En lugar de crear una super-caja AABB (que pierde la rotación),
+        // seleccionamos la caja con mayor confianza del cluster como representante.
+        // Esto mantiene la propiedad OBB correcta.
 
-        for (const box of cluster) {
-          const [x, y, w, h] = box.bbox;
-          minX = Math.min(minX, x);
-          minY = Math.min(minY, y);
-          maxX = Math.max(maxX, x + w);
-          maxY = Math.max(maxY, y + h);
-          maxScore = Math.max(maxScore, box.confidence);
+        let bestBox = cluster[0];
+        for (let k = 1; k < cluster.length; k++) {
+          if (cluster[k].confidence > bestBox.confidence) {
+            bestBox = cluster[k];
+          }
         }
 
-        merged.push({
-          class: className,
-          confidence: maxScore, // Usar la confianza más alta del grupo
-          bbox: [minX, minY, maxX - minX, maxY - minY]
-        });
+        merged.push(bestBox);
       }
     }
 
     return merged;
   }
 
-  private calculateIoU(box1: number[], box2: number[]): number {
-    const [x1, y1, w1, h1] = box1;
-    const [x2, y2, w2, h2] = box2;
+  private calculateIoU(box1: any, box2: any): number {
+    // Si tenemos información OBB, usamos Polígonos para calcular IoU real
+    if (box1.obb && box2.obb) {
+      return this.calculatePolygonIoU(box1.obb, box2.obb);
+    }
+
+    // Fallback a AABB estándar si no hay OBB
+    const b1 = box1.bbox ? box1.bbox : box1;
+    const b2 = box2.bbox ? box2.bbox : box2;
+
+    const [x1, y1, w1, h1] = b1;
+    const [x2, y2, w2, h2] = b2;
 
     const xi1 = Math.max(x1, x2);
     const yi1 = Math.max(y1, y2);
@@ -358,6 +386,115 @@ export class CacaoModel {
     const box1Area = w1 * h1;
     const box2Area = w2 * h2;
 
-    return interArea / (box1Area + box2Area - interArea);
+    return interArea / (box1Area + box2Area - interArea + 1e-6);
+  }
+
+  private calculatePolygonIoU(obb1: any, obb2: any): number {
+    // Convertir OBB (cx, cy, w, h, rot) a vértices de polígono
+    const poly1 = this.getPolygonVertices(obb1);
+    const poly2 = this.getPolygonVertices(obb2);
+
+    // Calcular área de intersección exacta usando Sutherland-Hodgman
+    const intersectionArea = this.getIntersectionArea(poly1, poly2);
+
+    if (intersectionArea <= 0) return 0;
+
+    const area1 = obb1.w * obb1.h;
+    const area2 = obb2.w * obb2.h;
+
+    const unionArea = area1 + area2 - intersectionArea;
+
+    return intersectionArea / (unionArea + 1e-6);
+  }
+
+  private getPolygonVertices(obb: any): { x: number, y: number }[] {
+    const { cx, cy, w, h, rotation } = obb;
+    const cos = Math.cos(rotation);
+    const sin = Math.sin(rotation);
+
+    // Mitades de ancho y alto
+    const hw = w / 2;
+    const hh = h / 2;
+
+    // Vértices relativos al centro (antes de rotar)
+    // Orden horario: TL, TR, BR, BL (asumiendo sistema de coordenadas de pantalla Y hacia abajo)
+    const corners = [
+      { x: -hw, y: -hh },
+      { x: hw, y: -hh },
+      { x: hw, y: hh },
+      { x: -hw, y: hh }
+    ];
+
+    // Rotar y trasladar
+    return corners.map(p => ({
+      x: cx + (p.x * cos - p.y * sin),
+      y: cy + (p.x * sin + p.y * cos)
+    }));
+  }
+
+  // Algoritmo de Sutherland-Hodgman para intersección de polígonos convexos
+  private getIntersectionArea(poly1: { x: number, y: number }[], poly2: { x: number, y: number }[]): number {
+    let outputList = poly1;
+
+    // Recortar poly1 contra cada borde de poly2
+    for (let i = 0; i < poly2.length; i++) {
+      const edgeStart = poly2[i];
+      const edgeEnd = poly2[(i + 1) % poly2.length];
+
+      const inputList = outputList;
+      outputList = [];
+
+      if (inputList.length === 0) break;
+
+      let s = inputList[inputList.length - 1];
+
+      for (const e of inputList) {
+        if (this.isInside(edgeStart, edgeEnd, e)) {
+          if (!this.isInside(edgeStart, edgeEnd, s)) {
+            outputList.push(this.computeIntersection(edgeStart, edgeEnd, s, e));
+          }
+          outputList.push(e);
+        } else if (this.isInside(edgeStart, edgeEnd, s)) {
+          outputList.push(this.computeIntersection(edgeStart, edgeEnd, s, e));
+        }
+        s = e;
+      }
+    }
+
+    return this.getPolygonArea(outputList);
+  }
+
+  // Verifica si el punto p está "adentro" del borde definido por edgeStart->edgeEnd
+  // "Adentro" significa a la derecha del vector borde (asumiendo orden horario y coordenadas de pantalla)
+  private isInside(edgeStart: { x: number, y: number }, edgeEnd: { x: number, y: number }, p: { x: number, y: number }): boolean {
+    return (edgeEnd.x - edgeStart.x) * (p.y - edgeStart.y) - (edgeEnd.y - edgeStart.y) * (p.x - edgeStart.x) >= 0;
+  }
+
+  private computeIntersection(p1: { x: number, y: number }, p2: { x: number, y: number }, p3: { x: number, y: number }, p4: { x: number, y: number }): { x: number, y: number } {
+    const x1 = p1.x, y1 = p1.y;
+    const x2 = p2.x, y2 = p2.y;
+    const x3 = p3.x, y3 = p3.y;
+    const x4 = p4.x, y4 = p4.y;
+
+    const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+    if (Math.abs(denom) < 1e-6) return { x: 0, y: 0 }; // Paralelas (no debería ocurrir en clipping normal)
+
+    const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+
+    return {
+      x: x1 + t * (x2 - x1),
+      y: y1 + t * (y2 - y1)
+    };
+  }
+
+  private getPolygonArea(poly: { x: number, y: number }[]): number {
+    let area = 0;
+    for (let i = 0; i < poly.length; i++) {
+      const j = (i + 1) % poly.length;
+      area += poly[i].x * poly[j].y;
+      area -= poly[j].x * poly[i].y;
+    }
+    return Math.abs(area) / 2;
   }
 }
