@@ -54,26 +54,6 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
   const modelRef = useRef<CacaoModel | null>(null)
 
   useEffect(() => {
-    // Inicializar modelo
-    const initModel = async () => {
-      try {
-        setModelLoading(true)
-        const model = new CacaoModel()
-        await model.load()
-        modelRef.current = model
-        console.log("Modelo inicializado correctamente")
-      } catch (e) {
-        console.error("Error inicializando modelo:", e)
-        setError("Error cargando el modelo de IA. Por favor recarga la página.")
-      } finally {
-        setModelLoading(false)
-      }
-    }
-
-    initModel()
-  }, [])
-
-  useEffect(() => {
     if (!analyzing && !modelLoading) return
     const interval = setInterval(() => {
       setSymbolIndex((prev) => (prev + 1) % LOADING_SYMBOLS.length)
@@ -108,9 +88,22 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
   }
 
   const processFile = async (file: File) => {
+    // Lazy load model if not initialized
     if (!modelRef.current) {
-      setError("El modelo aún se está cargando, intenta de nuevo en unos segundos")
-      return
+      try {
+        setModelLoading(true)
+        const model = new CacaoModel()
+        await model.load()
+        modelRef.current = model
+        console.log("Modelo inicializado correctamente (Lazy Load)")
+      } catch (e) {
+        console.error("Error inicializando modelo:", e)
+        setError("Error cargando el modelo de IA. Por favor recarga la página o revisa tu conexión.")
+        setModelLoading(false)
+        return
+      } finally {
+        setModelLoading(false)
+      }
     }
 
     setAnalyzing(true)

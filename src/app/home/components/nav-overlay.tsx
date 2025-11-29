@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 
@@ -21,7 +21,46 @@ export default function NavOverlay({ isOpen, onClose, confidenceThreshold, setCo
     const containerRef = useRef<HTMLDivElement>(null);
     const sliderWrapperRef = useRef<HTMLDivElement>(null);
     const nmsSliderWrapperRef = useRef<HTMLDivElement>(null);
+    const downloadBtnRef = useRef<HTMLDivElement>(null);
     const splitRefs = useRef<ReturnType<typeof SplitText.create>[]>([]);
+
+    const [isPWA, setIsPWA] = useState(false);
+    const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'done' | 'error'>('idle');
+
+    useEffect(() => {
+        // Check if PWA
+        if (typeof window !== 'undefined') {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone || document.referrer.includes('android-app://');
+            setIsPWA(isStandalone);
+
+            // Check if model is already cached
+            caches.open('cacao-model-cache-v1').then(cache => {
+                cache.match('/_model/best.onnx').then(response => {
+                    if (response) setDownloadStatus('done');
+                });
+            });
+        }
+    }, []);
+
+    const handleDownloadModel = async () => {
+        if (downloadStatus === 'downloading' || downloadStatus === 'done') return;
+
+        setDownloadStatus('downloading');
+        const MODEL_URLS = [
+            '/_model/best.onnx',
+            '/_model/ort-wasm-simd-threaded.wasm',
+            '/_model/ort-wasm-simd-threaded.mjs',
+            '/_model/ort-wasm-simd-threaded.jsep.wasm',
+        ];
+
+        try {
+            await Promise.all(MODEL_URLS.map(url => fetch(url)));
+            setDownloadStatus('done');
+        } catch (e) {
+            console.error("Error downloading model:", e);
+            setDownloadStatus('error');
+        }
+    };
 
     useEffect(() => {
         if (isOpen) {
@@ -70,6 +109,12 @@ export default function NavOverlay({ isOpen, onClose, confidenceThreshold, setCo
                 gsap.fromTo(nmsSliderWrapperRef.current,
                     { y: "100%" },
                     { y: "0%", duration: 1, ease: "power4.out", delay: 0.3 }
+                );
+            }
+            if (downloadBtnRef.current) {
+                gsap.fromTo(downloadBtnRef.current,
+                    { y: "100%", opacity: 0 },
+                    { y: "0%", opacity: 1, duration: 1, ease: "power4.out", delay: 0.4 }
                 );
             }
 
@@ -196,6 +241,37 @@ export default function NavOverlay({ isOpen, onClose, confidenceThreshold, setCo
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50 touch-none"
                                 />
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Download Model Button (PWA Only) */}
+                {isPWA && (
+                    <div className="mt-8 overflow-hidden w-full flex justify-end">
+                        <div ref={downloadBtnRef} className="opacity-0 translate-y-full">
+                            <button
+                                onClick={handleDownloadModel}
+                                disabled={downloadStatus === 'downloading' || downloadStatus === 'done'}
+                                className={`
+                                    relative px-6 py-3 text-sm font-semibold tracking-widest uppercase border transition-all duration-300
+                                    ${downloadStatus === 'done'
+                                        ? 'border-green-500 text-green-500 cursor-default'
+                                        : downloadStatus === 'error'
+                                            ? 'border-red-500 text-red-500 hover:bg-red-500/10'
+                                            : 'border-neutral-900 dark:border-white hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    }
+                                `}
+                            >
+                                {downloadStatus === 'idle' && 'Download Model Offline'}
+                                {downloadStatus === 'downloading' && 'Downloading...'}
+                                {downloadStatus === 'done' && 'Model Downloaded ✓'}
+                                {downloadStatus === 'error' && 'Retry Download'}
+                            </button>
+                            {downloadStatus === 'done' && (
+                                <p className="text-[10px] text-neutral-500 mt-2 text-right">
+                                    Ready for offline use
+                                </p>
+                            )}
                         </div>
                     </div>
                 )}
