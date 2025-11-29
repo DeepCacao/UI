@@ -147,7 +147,12 @@ export default function NavOverlay({ isOpen, onClose, confidenceThreshold, setCo
             </button>
             <div ref={containerRef} className="flex flex-col gap-8 text-right items-end">
                 {/* Model Name */}
-                <div className="overflow-hidden">
+                <div className="overflow-hidden flex flex-col items-end gap-2">
+                    {isPWA && downloadStatus === 'done' && (
+                        <div className="animate-in fade-in slide-in-from-bottom-2">
+                            <h2 className="text-4xl font-bold">Offline Model</h2>
+                        </div>
+                    )}
                     <h2 className="text-4xl font-bold animate-text">Theobroma-1-beta</h2>
                 </div>
 
@@ -246,32 +251,24 @@ export default function NavOverlay({ isOpen, onClose, confidenceThreshold, setCo
                 )}
 
                 {/* Download Model Button (PWA Only) */}
-                {isPWA && (
+                {isPWA && downloadStatus !== 'done' && (
                     <div className="mt-8 overflow-hidden w-full flex justify-end">
                         <div ref={downloadBtnRef} className="opacity-0 translate-y-full">
                             <button
                                 onClick={handleDownloadModel}
-                                disabled={downloadStatus === 'downloading' || downloadStatus === 'done'}
+                                disabled={downloadStatus === 'downloading'}
                                 className={`
                                     relative px-6 py-3 text-sm font-semibold tracking-widest uppercase border transition-all duration-300
-                                    ${downloadStatus === 'done'
-                                        ? 'border-green-500 text-green-500 cursor-default'
-                                        : downloadStatus === 'error'
-                                            ? 'border-red-500 text-red-500 hover:bg-red-500/10'
-                                            : 'border-neutral-900 dark:border-white hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    ${downloadStatus === 'error'
+                                        ? 'border-red-500 text-red-500 hover:bg-red-500/10'
+                                        : 'border-neutral-900 dark:border-white hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     }
                                 `}
                             >
                                 {downloadStatus === 'idle' && 'Download Model Offline'}
                                 {downloadStatus === 'downloading' && 'Downloading...'}
-                                {downloadStatus === 'done' && 'Model Downloaded ✓'}
                                 {downloadStatus === 'error' && 'Retry Download'}
                             </button>
-                            {downloadStatus === 'done' && (
-                                <p className="text-[10px] text-neutral-500 mt-2 text-right">
-                                    Ready for offline use
-                                </p>
-                            )}
                         </div>
                     </div>
                 )}

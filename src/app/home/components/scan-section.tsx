@@ -4,37 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import { UploadZone } from './upload-zone'
 import { TextShimmer } from '@/components/ui/text-shimmer'
 import { CacaoModel } from '@/lib/onnx-model'
-import { DotFlow } from '@/components/ui/dot-flow'
 
 const LOADING_SYMBOLS = ['✱', '✲', '✵', '✶', '✷', '✸', '✹', '✺', '✻', '✼', '✽', '✾', '✢']
-
-const MODEL_LOADING_FLOW = [
-  {
-    title: "Loading Model",
-    frames: [
-      [24],
-      [24, 17, 31, 23, 25],
-      [24, 17, 31, 23, 25, 10, 38, 22, 26, 16, 18, 30, 32],
-      [24, 17, 31, 23, 25, 10, 38, 22, 26, 16, 18, 30, 32, 3, 45, 21, 27, 9, 11, 37, 39],
-    ],
-    duration: 150,
-    repeatCount: 3
-  },
-  {
-    title: "Initializing AI",
-    frames: [
-      [0, 1, 2, 3, 4, 5, 6],
-      [7, 8, 9, 10, 11, 12, 13],
-      [14, 15, 16, 17, 18, 19, 20],
-      [21, 22, 23, 24, 25, 26, 27],
-      [28, 29, 30, 31, 32, 33, 34],
-      [35, 36, 37, 38, 39, 40, 41],
-      [42, 43, 44, 45, 46, 47, 48],
-    ],
-    duration: 100,
-    repeatCount: 3
-  }
-]
 
 interface ScanSectionProps {
   confidenceThreshold: number
@@ -47,8 +18,8 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
   const [resultImage, setResultImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [symbolIndex, setSymbolIndex] = useState(0)
   const [modelLoading, setModelLoading] = useState(false)
+  const [symbolIndex, setSymbolIndex] = useState(0)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const modelRef = useRef<CacaoModel | null>(null)
@@ -162,20 +133,16 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
 
       {/* Main Interactive Area - Scrollable */}
       <div className="flex-1 w-full overflow-y-auto scrollbar-hide">
-        <div className="min-h-full flex flex-col items-center justify-center p-6 pb-6 max-w-xl mx-auto space-y-8 animate-in fade-in duration-1000">
+        <div className={`min-h-full flex flex-col items-center ${resultImage ? 'justify-start pt-10' : 'justify-center'} p-6 pb-20 max-w-xl mx-auto space-y-8 animate-in fade-in duration-1000`}>
 
           {/* Header - Editorial Style */}
-          <div className="text-center space-y-4 pt-10 md:pt-0">
-            <TextShimmer as="h1" className="text-4xl md:text-5xl font-medium tracking-tight leading-tight" duration={4} repeatDelay={4}>
-              Hi, how are you?
-            </TextShimmer>
-            {/* Model Status Indicator - Replaced with minimal loader below */}
-            {modelLoading && (
-              <div className="flex justify-center pt-2 animate-in fade-in duration-300">
-                <DotFlow items={MODEL_LOADING_FLOW} />
-              </div>
-            )}
-          </div>
+          {!resultImage && (
+            <div className={`text-center space-y-4 pt-10 md:pt-0 transition-all duration-500 ease-in-out ${analyzing || modelLoading ? 'opacity-0 pointer-events-none' : 'opacity-100 translate-y-0'}`}>
+              <TextShimmer as="h1" className="text-4xl md:text-5xl font-medium tracking-tight leading-tight" duration={4} repeatDelay={4}>
+                Hi, how are you?
+              </TextShimmer>
+            </div>
+          )}
 
           {/* Hidden Input */}
           <input
@@ -277,17 +244,18 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
             </div>
           )}
 
-          {/* Upload Controls */}
-          <div className="w-full hidden md:block">
+          {/* Upload Zone or Results */}
+          {!resultImage && (
             <UploadZone
               isDragging={isDragging}
-              isAnalyzing={analyzing}
+              isAnalyzing={analyzing || modelLoading}
+              statusText={modelLoading ? "Loading AI Model..." : "Analyzing specimen..."}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={handleUploadClick}
             />
-          </div>
+          )}
 
           {/* Footer Info & Controls */}
           {!analyzing && !error && (

@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react'
 interface UploadZoneProps {
   isDragging: boolean
   isAnalyzing?: boolean
+  statusText?: string
   onDragOver: (e: React.DragEvent) => void
   onDragLeave: (e: React.DragEvent) => void
   onDrop: (e: React.DragEvent) => void
@@ -16,6 +17,7 @@ const LOADING_SYMBOLS = ['✱', '✲', '✵', '✶', '✷', '✸', '✹', '✺',
 export function UploadZone({ 
   isDragging, 
   isAnalyzing = false,
+  statusText = "Analyzing specimen...",
   onDragOver, 
   onDragLeave, 
   onDrop, 
@@ -50,7 +52,7 @@ export function UploadZone({
             {/* Minimalist Upload Icon or Loading Symbol */}
             <div className="w-8 h-8 rounded-full border border-neutral-300 dark:border-neutral-700 flex items-center justify-center mb-2">
                 {isAnalyzing ? (
-                   <span className="text-foreground text-lg leading-none animate-pulse">
+                   <span className="text-foreground text-lg leading-none">
                      {LOADING_SYMBOLS[symbolIndex]}
                    </span>
                 ) : (
@@ -59,13 +61,11 @@ export function UploadZone({
             </div>
             
             <p className="text-sm text-neutral-600 dark:text-neutral-400 font-medium">
-                {isAnalyzing ? "Analyzing specimen..." : "Click to upload or drag and drop"}
+                {isAnalyzing ? statusText : "Click to upload or drag and drop"}
             </p>
-            {!isAnalyzing && (
-                <p className="text-xs text-neutral-400 uppercase tracking-wider">
-                    JPG, PNG up to 10MB
-                </p>
-            )}
+            <p className={`text-xs text-neutral-400 uppercase tracking-wider transition-opacity duration-200 ${isAnalyzing ? 'opacity-0' : 'opacity-100'}`}>
+                JPG, PNG up to 10MB
+            </p>
         </div>
     </div>
   )
