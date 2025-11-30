@@ -25,7 +25,7 @@ export default function Hero() {
         </video> */}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-12 md:grid-rows-6 gap-y-4 gap-x-4">
-        <h1 className="md:col-span-8 md:row-start-1 text-start text-4xl md:text-5xl font-medium uppercase tracking-widest">
+        <h1 className="md:col-span-8 md:row-start-1 text-start text-5xl font-medium uppercase tracking-widest">
           Cacao Scan
         </h1>
         <p className="md:col-span-4 md:col-start-9 md:row-start-1 text-start font-light">
