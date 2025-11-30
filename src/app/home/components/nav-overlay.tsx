@@ -139,12 +139,15 @@ export default function NavOverlay({ isOpen, onClose, confidenceThreshold, setCo
             ref={overlayRef}
             className="fixed inset-0 bg-background/95 backdrop-blur-sm z-[100] flex flex-col items-end justify-end opacity-0 pointer-events-none p-2 md:p-4"
         >
-            <button
-                onClick={onClose}
-                className="absolute top-4 right-2 text-xs font-semibold"
-            >
-                Close
-            </button>
+            <nav className="absolute top-0 text-xs md:text-sm font-semibold left-0 w-full p-2 py-4 md:p-4 flex gap-4 pointer-events-none">
+                <div className={`flex grow justify-end items-start ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+                    <button
+                        onClick={onClose}
+                    >
+                        Close
+                    </button>
+                </div>
+            </nav>
             <div ref={containerRef} className="flex flex-col gap-8 text-right items-end">
                 {/* Model Name */}
                 <div className="overflow-hidden flex flex-col items-end gap-2">

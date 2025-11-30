@@ -133,7 +133,7 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
 
       {/* Main Interactive Area - Scrollable */}
       <div className="flex-1 w-full overflow-y-auto scrollbar-hide">
-        <div className={`min-h-full flex flex-col items-center ${resultImage ? 'justify-start pt-10' : 'justify-center'} p-6 pb-20 max-w-xl mx-auto space-y-8 animate-in fade-in duration-1000`}>
+        <div className={`min-h-[100dvh] flex flex-col items-center ${resultImage ? 'justify-start pt-10' : 'justify-center'} p-6 pb-28 md:pb-0 max-w-xl mx-auto space-y-8 animate-in fade-in duration-1000`}>
 
           {/* Header - Editorial Style */}
           {!resultImage && (
@@ -275,9 +275,12 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
       </div>
 
       {/* Mobile Fixed Bottom Button */}
-      <div className="md:hidden w-full p-6 bg-background z-50 shrink-0">
-        <div className="w-full p-[2px] rounded-full bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 shadow-lg transition-all active:scale-[0.98]">
-          <button
+      <div className="md:hidden fixed bottom-0 left-0 w-full z-50">
+          
+          {/* Content */}
+          <div className="relative p-6 pb-6 pt-4">
+            <div className="w-full p-[2px] rounded-full bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 shadow-lg transition-all active:scale-[0.98]">
+              <button
             onClick={handleUploadClick}
             disabled={analyzing || modelLoading}
             className="w-full py-4 rounded-full bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 disabled:cursor-not-allowed"
@@ -295,6 +298,7 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
               Upload Image
             </span>
           </button>
+          </div>
         </div>
       </div>
 

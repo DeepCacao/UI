@@ -9,7 +9,7 @@ export default function HomePage() {
   const [nmsThreshold, setNmsThreshold] = useState(0.60)
 
   return (
-    <main className="h-[100dvh] w-full bg-background overflow-hidden flex flex-col">
+    <main className="min-h-[100dvh] w-full bg-background flex flex-col">
       <Nav
         confidenceThreshold={confidenceThreshold}
         setConfidenceThreshold={setConfidenceThreshold}
