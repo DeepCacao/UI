@@ -25,6 +25,7 @@ type PixelatedVideoProps = {
   muted?: boolean;
   loop?: boolean;
   playsInline?: boolean;
+  preload?: string;
   grid?: number;
   mouse?: number;
   strength?: number;
@@ -40,6 +41,7 @@ export default function PixelatedVideo({
   muted = true,
   loop = true,
   playsInline = true,
+  preload = "auto",
   grid = 25,
   mouse = 0.25,
   strength = 0.1,
@@ -257,7 +259,7 @@ export default function PixelatedVideo({
 
   return (
     <div ref={containerRef} className={className} style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", border: 0, outline: "none" }}>
-      <video ref={videoRef} src={src} autoPlay={autoPlay} muted={muted} loop={loop} playsInline={playsInline} style={{ width: "100%", height: "100%", objectFit: "cover", border: 0, outline: "none" }} />
+      <video ref={videoRef} src={src} autoPlay={autoPlay} muted={muted} loop={loop} playsInline={playsInline} preload={preload} style={{ width: "100%", height: "100%", objectFit: "cover", border: 0, outline: "none" }} />
     </div>
   );
 }
