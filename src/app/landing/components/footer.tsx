@@ -1,8 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
-import { DitheringShader } from '@/components/ui/dithering-shader'
 
 const SECTIONS = [
   {
@@ -44,44 +42,8 @@ const SECTIONS = [
 ]
 
 export default function Footer() {
-  const footerRef = useRef<HTMLElement>(null)
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-
-  useEffect(() => {
-    if (!footerRef.current) return
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        // Use borderBoxSize if available for more accurate outer dimensions,
-        // fallback to contentRect or offset* properties if needed.
-        // However, for absolute positioning covering the whole element, offsetWidth/Height is usually what we want.
-        const { offsetWidth, offsetHeight } = entry.target as HTMLElement
-        setDimensions({ width: offsetWidth, height: offsetHeight })
-      }
-    })
-
-    observer.observe(footerRef.current)
-
-    return () => observer.disconnect()
-  }, [])
-
   return (
-    <footer
-      ref={footerRef}
-      className='relative grid grid-cols-1 md:grid-cols-12 gap-12 p-2 md:p-4 border-t min-h-[280px] items-start overflow-hidden'
-    >
-      <div className='absolute inset-0 pointer-events-none opacity-30'>
-        {dimensions.width > 0 && dimensions.height > 0 && (
-          <DitheringShader
-            width={dimensions.width}
-            height={dimensions.height}
-            colorBack='#ffffff'
-            colorFront='#000000'
-            type='random'
-            pxSize={2}
-          />
-        )}
-      </div>
+    <footer className='relative grid grid-cols-1 md:grid-cols-12 gap-12 p-2 md:p-4 border-t min-h-[280px] items-start overflow-hidden'>
       <div className='col-span-1 md:col-span-3 flex flex-col gap-4 z-10'>
         <div className='text-2xl font-bold uppercase tracking-widest'>
           DeepCacao
