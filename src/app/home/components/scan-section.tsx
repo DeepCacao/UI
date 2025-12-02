@@ -64,12 +64,23 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
       try {
         setModelLoading(true)
         const model = new CacaoModel()
-        await model.load()
+        
+        // Timeout promise to prevent infinite loading
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Timeout loading model")), 15000)
+        );
+        
+        await Promise.race([model.load(), timeoutPromise]);
+        
         modelRef.current = model
         console.log("Modelo inicializado correctamente (Lazy Load)")
-      } catch (e) {
+      } catch (e: any) {
         console.error("Error inicializando modelo:", e)
-        setError("Error cargando el modelo de IA. Por favor recarga la página o revisa tu conexión.")
+        if (e.message === "Timeout loading model") {
+           setError("Loading timed out. Please ensure you have downloaded the offline resources by visiting this page with internet connection at least once.")
+        } else {
+           setError("Error loading AI model. Please check your connection or reload.")
+        }
         setModelLoading(false)
         return
       } finally {

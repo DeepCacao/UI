@@ -6,6 +6,11 @@ const MODEL_URLS = [
   '/_model/ort-wasm-simd-threaded.wasm',
   '/_model/ort-wasm-simd-threaded.mjs',
   '/_model/ort-wasm-simd-threaded.jsep.wasm',
+  '/_model/ort-wasm-simd-threaded.jsep.mjs',
+  '/_model/ort.wasm.mjs',
+  '/_model/ort.wasm.min.mjs',
+  '/_model/ort-wasm-simd-threaded.asyncify.wasm',
+  '/_model/ort-wasm-simd-threaded.asyncify.mjs'
 ];
 
 const STATIC_URLS = [
