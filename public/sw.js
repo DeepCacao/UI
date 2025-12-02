@@ -8,6 +8,14 @@ const MODEL_URLS = [
   '/_model/ort-wasm-simd-threaded.jsep.wasm',
 ];
 
+const STATIC_URLS = [
+  '/',
+  '/home',
+  '/manifest.webmanifest',
+  '/icon-192x192.webp',
+  '/icon-512x512.webp'
+];
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   
@@ -18,13 +26,8 @@ self.addEventListener('install', (event) => {
             return cache.addAll(MODEL_URLS);
         }),
         caches.open(CACHE_NAME).then((cache) => {
-            // Pre-cache essential files if we know them.
-            // For now, we rely on runtime caching for pages.
-            return cache.addAll([
-                '/manifest.webmanifest',
-                '/icon-192x192.webp',
-                '/icon-512x512.webp'
-            ]);
+            console.log('Caching app shell');
+            return cache.addAll(STATIC_URLS);
         })
     ])
   );
@@ -111,9 +114,32 @@ self.addEventListener('fetch', (event) => {
                      // If home not found, try root
                      return caches.match('/').then(rootResponse => {
                          if (rootResponse) return rootResponse;
-                         return new Response("Offline - Content not available", { 
+                         
+                         const offlineHtml = `
+                          <!DOCTYPE html>
+                          <html lang="en">
+                          <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Cacao Scan - Offline</title>
+                            <style>
+                              body { font-family: system-ui, sans-serif; text-align: center; padding: 2rem; background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                              h1 { margin-bottom: 1rem; }
+                              p { color: #aaa; max-width: 300px; line-height: 1.5; }
+                              button { background: #fff; color: #000; border: none; padding: 12px 24px; font-size: 1rem; cursor: pointer; margin-top: 20px; border-radius: 4px; font-weight: bold; }
+                            </style>
+                          </head>
+                          <body>
+                            <h1>No Internet</h1>
+                            <p>You are offline and the app hasn't been fully cached yet. Please connect to the internet once to download the resources.</p>
+                            <button onclick="window.location.reload()">Retry</button>
+                          </body>
+                          </html>
+                         `;
+
+                         return new Response(offlineHtml, { 
                             status: 503, 
-                            headers: { 'Content-Type': 'text/plain' } 
+                            headers: { 'Content-Type': 'text/html' } 
                         });
                      });
                  });
@@ -130,9 +156,32 @@ self.addEventListener('fetch', (event) => {
                     // If even home is not cached, try root
                      return caches.match('/').then((rootResponse) => {
                          if (rootResponse) return rootResponse;
-                          return new Response("Offline - Content not available", { 
+                         
+                          const offlineHtml = `
+                          <!DOCTYPE html>
+                          <html lang="en">
+                          <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Cacao Scan - Offline</title>
+                            <style>
+                              body { font-family: system-ui, sans-serif; text-align: center; padding: 2rem; background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                              h1 { margin-bottom: 1rem; }
+                              p { color: #aaa; max-width: 300px; line-height: 1.5; }
+                              button { background: #fff; color: #000; border: none; padding: 12px 24px; font-size: 1rem; cursor: pointer; margin-top: 20px; border-radius: 4px; font-weight: bold; }
+                            </style>
+                          </head>
+                          <body>
+                            <h1>No Internet</h1>
+                            <p>You are offline and the app hasn't been fully cached yet. Please connect to the internet once to download the resources.</p>
+                            <button onclick="window.location.reload()">Retry</button>
+                          </body>
+                          </html>
+                         `;
+
+                          return new Response(offlineHtml, { 
                             status: 503, 
-                            headers: { 'Content-Type': 'text/plain' } 
+                            headers: { 'Content-Type': 'text/html' } 
                         });
                      });
                 });
