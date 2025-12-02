@@ -6,9 +6,10 @@ import NavOverlay from "./nav-overlay";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
+  { label: "App", href: "/home" },
   { label: "History", href: "#history" },
   { label: "Pricing", href: "#pricing" },
-  { label: "Contact", href: "#contact" },
+
 ];
 
 export default function Nav() {
