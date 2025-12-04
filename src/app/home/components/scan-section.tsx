@@ -170,7 +170,7 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
               <img
                 src={resultImage}
                 alt="Analyzed Cacao"
-                className="w-full h-auto object-cover max-h-[500px]"
+                className="w-full h-auto"
               />
 
               {/* Bounding Boxes Overlay */}
@@ -188,7 +188,7 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
                           top: `${pred.obb.cy * 100}%`,
                           width: `${pred.obb.w * 100}%`,
                           height: `${pred.obb.h * 100}%`,
-                          transform: `translate(-50%, -50%) rotate(${pred.obb.rotation}rad)`,
+                          transform: `translate(-50%, -50%) rotate(${pred.obb.rotation * -1}rad)`,
                           border: '2px solid #ef4444',
                           backgroundColor: 'rgba(239, 68, 68, 0.2)',
                           pointerEvents: 'none'
@@ -196,7 +196,7 @@ export default function ScanSection({ confidenceThreshold, nmsThreshold }: ScanS
                       >
                         <span
                           className="absolute -top-6 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10"
-                          style={{ transform: `rotate(${-pred.obb.rotation}rad)` }} // Contra-rotar el texto para que se lea horizontal
+                          style={{ transform: `rotate(${pred.obb.rotation}rad)` }} // Contra-rotar el texto para que se lea horizontal
                         >
                           {pred.label} {Math.round(pred.score * 100)}%
                         </span>
